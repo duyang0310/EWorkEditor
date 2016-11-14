@@ -81,8 +81,8 @@ class Editor extends Undoable[Editor.Action] {
 		new ed.AmalgInsertion(p, ch)
 	}
 
-	/** Command: Transpose */
 	//TODO Task 2
+	/** Command: Transpose */
 	def transposeCommand(): Change = {
 		var p = ed.point
 		if (p == 0) { beep(); return null }
