@@ -153,6 +153,17 @@ class EdBuffer {
         text.insert(pos, t)
         setModified()
     }
+    
+    //TODO Task 2
+    /** Transpose the character to the left and right of the cursor */
+    def transpose(pos: Int) {
+    	val ch1 = text.charAt(pos - 1)
+    	val ch2 = text.charAt(pos)
+		noteDamage(ch1 == '\n' || ch2 == '\n' || getRow(pos - 1) != getRow(pos))
+    	text.deleteChar(pos - 1)
+    	text.insert(pos, ch1)
+    	setModified()
+    }
 
     /** Load a file into the buffer. */
     def loadFile(name: String) {
@@ -231,6 +242,13 @@ class EdBuffer {
         }
     }
 
+    //TODO Task 2
+    /** Change that records a transposition */
+    class Transposition(pos: Int) extends Change {
+    	def undo() { transpose(pos-1) }
+    	def redo() { transpose(pos-1) }
+    }
+    
     /** Change that records a deletion */
     class Deletion(pos: Int, deleted: Char) extends Change {
         def undo() { insert(pos, deleted) }
