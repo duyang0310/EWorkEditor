@@ -60,6 +60,12 @@ class Editor extends Undoable[Editor.Action] {
             case Editor.PAGEUP =>
                 p = ed.getPos(row - Editor.SCROLL, 0)
                 display.scroll(-Editor.SCROLL)
+            case Editor.CTRLHOME =>
+                //TODO Task 1
+                p = 0
+            case Editor.CTRLEND =>
+                //TODO Task 1
+                p = ed.length
             case _ =>
                 throw new Error("Bad direction")
         }
@@ -187,6 +193,8 @@ object Editor {
     val END = 6
     val PAGEUP = 7
     val PAGEDOWN = 8
+    val CTRLHOME = 9
+    val CTRLEND = 10
     
     /** Amount to scroll the screen for PAGEUP and PAGEDOWN */
     val SCROLL = Display.HEIGHT - 3
@@ -246,7 +254,9 @@ object Editor {
         Display.ctrl('R') -> (_.replaceFileCommand),
         Display.ctrl('W') -> (_.saveFileCommand),
         Display.ctrl('Y') -> (_.redo),
-        Display.ctrl('Z') -> (_.undo))
+        Display.ctrl('Z') -> (_.undo),
+        Display.CTRLHOME -> (_.moveCommand(CTRLHOME)),
+        Display.CTRLEND -> (_.moveCommand(CTRLEND)))
 
     for (ch <- Display.printable)
         keymap += ch -> (_.insertCommand(ch.toChar))
