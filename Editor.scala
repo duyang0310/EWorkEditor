@@ -87,7 +87,7 @@ class Editor extends Undoable[Editor.Action] {
 		var p = ed.point
 		if (p == 0) { beep(); return null }
 
-		if ( p == ed.length || ed.charAt(p) == '\n') {
+		if (p == ed.length || ed.charAt(p) == '\n') {
 			ed.transpose(p - 1)
 		} else {
 			ed.transpose(p)
@@ -99,25 +99,50 @@ class Editor extends Undoable[Editor.Action] {
 
 	/** Command: Delete in a specified direction */
 	def deleteCommand(dir: Int): Change = {
+		//TODO Task 3
+		def findEndPos(pos: Int): Int = {
+			var end = pos
+			if (ed.charAt(pos) == '\n') {
+				end += 1
+			} else {
+				while (end < ed.length &&
+					ed.charAt(end) != '\n') { end += 1 }
+			}
+
+			return end;
+		}
+
 		var p = ed.point
-		var ch: Char = 0
+		// var ch: Char = 0
+		var deleted: Text.Immutable = null
 
 		dir match {
 			case Editor.LEFT =>
 				if (p == 0) { beep(); return null }
 				p -= 1
-				ch = ed.charAt(p)
+				// ch = ed.charAt(p)
+				deleted = ed.getRange(p, 1)
 				ed.deleteChar(p)
 				ed.point = p
 			case Editor.RIGHT =>
 				if (p == ed.length) { beep(); return null }
-				ch = ed.charAt(p)
+				// ch = ed.charAt(p)
+				deleted = ed.getRange(p, 1)
 				ed.deleteChar(p)
+			//TODO Task 3
+			case Editor.END =>
+				if (p == ed.length) { beep(); return null }
+				val endPos = findEndPos(p)
+				val len = endPos - p
+				if (len <= 0) { beep(); return null }
+				deleted = ed.getRange(p, len)
+				ed.deleteRange(p, len)
 			case _ =>
 				throw new Error("Bad direction")
 		}
 
-		new ed.Deletion(p, ch)
+		assert(deleted != null)
+		new ed.Deletion(p, deleted)
 	}
 
 	/** Command: Save the file */
@@ -262,6 +287,7 @@ object Editor {
 		Display.ctrl('E') -> (_.moveCommand(END)),
 		Display.ctrl('F') -> (_.moveCommand(RIGHT)),
 		Display.ctrl('G') -> (_.beep),
+		Display.ctrl('K') -> (_.deleteCommand(END)), //TODO Task 3
 		Display.ctrl('L') -> (_.chooseOrigin),
 		Display.ctrl('N') -> (_.moveCommand(DOWN)),
 		Display.ctrl('P') -> (_.moveCommand(UP)),
