@@ -17,6 +17,10 @@ class EdBuffer {
 	/** Current editing position. */
 	private var _point = 0
 
+	//TODO Task 7
+	/** Current mark position */
+	private var mark = -1
+
 	// State components that are not restored on undo
 
 	/** File name for saving the text. */
@@ -106,12 +110,17 @@ class EdBuffer {
 
 	// Mutator methods
 
+	//TODO Task 7
 	/** Delete a character */
 	def deleteChar(pos: Int) {
 		val ch = text.charAt(pos)
 		noteDamage(ch == '\n' || getRow(pos) != getRow(point))
 		text.deleteChar(pos)
 		setModified()
+
+		if (hasPlacedMark() && pos <= mark) {
+			mark -= 1
+		}
 	}
 
 	/** Delete a range of characters. */
@@ -119,6 +128,10 @@ class EdBuffer {
 		noteDamage(true)
 		text.deleteRange(pos, len)
 		setModified()
+		
+		if (hasPlacedMark() && pos <= mark) {
+			mark -= len
+		}
 	}
 
 	/** Insert a character */
@@ -126,6 +139,10 @@ class EdBuffer {
 		noteDamage(ch == '\n' || getRow(pos) != getRow(point))
 		text.insert(pos, ch)
 		setModified()
+		
+		if (hasPlacedMark() && pos <= mark) {
+			mark += 1
+		}
 	}
 
 	/** Insert a string */
@@ -133,6 +150,10 @@ class EdBuffer {
 		noteDamage(true)
 		text.insert(pos, s)
 		setModified()
+		
+		if (hasPlacedMark() && pos <= mark) {
+			mark += s.length()
+		}
 	}
 
 	/** Insert an immutable text. */
@@ -140,6 +161,10 @@ class EdBuffer {
 		noteDamage(true)
 		text.insert(pos, s)
 		setModified()
+		
+		if (hasPlacedMark() && pos <= mark) {
+			mark += s.length()
+		}
 	}
 
 	/** Insert a Text. */
@@ -147,6 +172,10 @@ class EdBuffer {
 		noteDamage(true)
 		text.insert(pos, t)
 		setModified()
+		
+		if (hasPlacedMark() && pos <= mark) {
+			mark += t.length()
+		}
 	}
 
 	//TODO Task 2
@@ -193,6 +222,19 @@ class EdBuffer {
 		}
 	}
 
+	//TODO Task 7
+	def placeMark() { mark = point }
+
+	//TODO Task 7
+	def hasPlacedMark(): Boolean = mark >= 0
+
+	//TODO Task 7
+	def swapMark() {
+		val temp = mark
+		mark = point
+		point = temp
+	}
+
 	/** Make a Memento that records the current editing state */
 	def getState() = new Memento()
 
@@ -202,9 +244,9 @@ class EdBuffer {
 	 */
 	class Memento {
 		private val pt = point
-
+		private val mk = mark //TODO Task 7
 		/** Restore the state when the memento was created */
-		def restore() { point = pt }
+		def restore() { point = pt; mark = mk } //TODO Task 7
 	}
 
 	/** Change that records an insertion */
@@ -246,10 +288,10 @@ class EdBuffer {
 	}
 
 	/** Change that records a deletion */
-//	class Deletion(pos: Int, deleted: Char) extends Change {
-//		def undo() { insert(pos, deleted) }
-//		def redo() { deleteChar(pos) }
-//	}
+	//	class Deletion(pos: Int, deleted: Char) extends Change {
+	//		def undo() { insert(pos, deleted) }
+	//		def redo() { deleteChar(pos) }
+	//	}
 	//TODO Task 3
 	class Deletion(pos: Int, deleted: Text.Immutable) extends Change {
 		def undo() { insert(pos, deleted) }

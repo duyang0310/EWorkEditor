@@ -73,6 +73,22 @@ class Editor extends Undoable[Editor.Action] {
 		ed.point = p
 	}
 
+	//TODO Task 7
+	/** Command: Place the mark */
+	def markCommand(mode: Int) {
+		mode match {
+			case Editor.CTRLM =>
+				ed.placeMark()
+			case Editor.CTRLO =>
+				if (ed.hasPlacedMark())
+					ed.swapMark()
+				else
+					beep()
+			case _ =>
+				throw new Error("Bad mark command mode")
+		}
+	}
+
 	/** Command: Insert a character */
 	def insertCommand(ch: Char): Change = {
 		val p = ed.point
@@ -235,6 +251,8 @@ object Editor {
 	val PAGEDOWN = 8
 	val CTRLHOME = 9
 	val CTRLEND = 10
+	val CTRLM = 11
+	val CTRLO = 12
 
 	/** Amount to scroll the screen for PAGEUP and PAGEDOWN */
 	val SCROLL = Display.HEIGHT - 3
@@ -289,7 +307,9 @@ object Editor {
 		Display.ctrl('G') -> (_.beep),
 		Display.ctrl('K') -> (_.deleteCommand(END)), //TODO Task 3
 		Display.ctrl('L') -> (_.chooseOrigin),
+		Display.ctrl('M') -> (_.markCommand(CTRLM)),
 		Display.ctrl('N') -> (_.moveCommand(DOWN)),
+		Display.ctrl('O') -> (_.markCommand(CTRLO)),
 		Display.ctrl('P') -> (_.moveCommand(UP)),
 		Display.ctrl('Q') -> (_.quit),
 		Display.ctrl('R') -> (_.replaceFileCommand),
