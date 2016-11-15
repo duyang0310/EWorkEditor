@@ -160,9 +160,12 @@ class Display(terminal: Display.Hardware) {
     
     /** Check that the origin obeys the rules, and move it if not */
     private def checkScroll() {
-        if (row < origin || row >= origin + LINES)
-            chooseOrigin()
-
+        // if (row < origin || row >= origin + LINES)
+        //     chooseOrigin()
+        
+    	//TODO Task 4
+    	origin = row - LINES/2
+    	
         /* Ensure that the origin is within the buffer, if possible by
          * half a screen at the end */
         origin = Math.max(Math.min(origin, ed.numLines - LINES/2), 0)
@@ -170,14 +173,16 @@ class Display(terminal: Display.Hardware) {
 
     /** Choose display origin to centre the cursor */
     def chooseOrigin() {
-        // This is used for Redraw
-        origin = row - LINES/2
+        //TODO Task 4
+    	// This is used for Redraw
+    	// origin = row - LINES/2
     }
     
     /** Suggest scrolling by a specified amount */
     def scroll(n: Int) {
-        // This is used by PageUp and PageDown
-        origin += n
+        //TODO Task 4
+    	// This is used by PageUp and PageDown
+        // origin += n
     }
 }
 
